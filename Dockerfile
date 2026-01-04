@@ -47,8 +47,6 @@ ENV NODE_ENV=production
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 COPY --from=prod-deps /app/node_modules ./node_modules
-
-RUN mkdir -p /app && touch /app/.cache.db && chown -R nestjs:nodejs /app
 RUN mkdir -p /app/logs && chown -R nestjs:nodejs /app/logs
 
 USER nestjs

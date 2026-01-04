@@ -17,7 +17,6 @@ import { appConfig } from "./app.config";
     ConfigModule.forRoot({
       isGlobal: true,
       load: [appConfig],
-      envFilePath: [".env"],
     }),
     CacheModule.registerAsync({
       isGlobal: true,

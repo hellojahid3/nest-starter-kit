@@ -1,64 +1,57 @@
-# Stage 1: Build stage
-FROM node:24-alpine AS builder
+FROM node:24-alpine AS base
 
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
-
+# ----------------------------------------
+# 1. Install all dependencies
+# ----------------------------------------
+FROM base AS deps
 WORKDIR /app
-
-# Copy package files and prisma schema
+RUN corepack enable && corepack prepare pnpm@latest --activate
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY prisma ./prisma
-
-# Install all dependencies (including dev)
 RUN pnpm install --frozen-lockfile
-
-# Generate Prisma Client
 RUN pnpm db:generate
 
-# Copy source code
-COPY . .
+# ----------------------------------------
+# 2. Build the application
+# ----------------------------------------
+FROM base AS builder
 
-# Build the application
+WORKDIR /app
+RUN corepack enable && corepack prepare pnpm@latest --activate
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
 RUN pnpm build
 
-# Prune to production-only dependencies
-RUN pnpm prune --prod
-
-# Stage 2: Production image
-FROM node:24-alpine AS runner
+# ----------------------------------------
+# 3. Install only production dependencies
+# ----------------------------------------
+FROM base AS prod-deps
 
 WORKDIR /app
 ENV NODE_ENV=production
-
-# Install pnpm
 RUN corepack enable && corepack prepare pnpm@latest --activate
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY prisma ./prisma
+RUN pnpm install --frozen-lockfile --prod
 
-# Create non-root user
+# ----------------------------------------
+# 4. Final Stage
+# ----------------------------------------
+FROM base AS runner
+
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nestjs
 
-# Copy package files
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY prisma ./prisma
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/prisma ./prisma
+COPY --from=prod-deps /app/node_modules ./node_modules
 
-# Install production dependencies
-RUN pnpm install --frozen-lockfile --prod
-
-# Copy built application
-COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
-
-# Create cache file
 RUN mkdir -p /app && touch /app/.cache.db && chown -R nestjs:nodejs /app
-
-# Create logs directory
 RUN mkdir -p /app/logs && chown -R nestjs:nodejs /app/logs
 
 USER nestjs
-
 EXPOSE 8000
-
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:8000/api/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
 
 CMD ["node", "dist/src/main.js"]

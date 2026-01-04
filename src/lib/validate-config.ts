@@ -1,5 +1,5 @@
 import { plainToClass } from "class-transformer";
-import { ClassConstructor } from "class-transformer/types/interfaces";
+import { type ClassConstructor } from "class-transformer/types/interfaces";
 import { validateSync } from "class-validator";
 
 function validateConfig<T extends object>(
@@ -16,6 +16,7 @@ function validateConfig<T extends object>(
   if (errors.length > 0) {
     throw new Error(errors.toString());
   }
+
   return validatedConfig;
 }
 

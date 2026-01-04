@@ -1,4 +1,5 @@
 import { registerAs } from "@nestjs/config";
+import { Transform } from "class-transformer";
 import {
   IsEnum,
   IsInt,
@@ -21,7 +22,6 @@ export enum Environment {
 class EnvironmentVariablesValidator {
   @IsString()
   @IsEnum(Environment)
-  @IsNotEmpty()
   NODE_ENV: Environment;
 
   @IsInt()
@@ -37,6 +37,10 @@ class EnvironmentVariablesValidator {
   @IsUrl({ require_tld: false })
   @IsNotEmpty()
   APP_URL: string;
+
+  @Transform(({ value }: { value: string }) => value?.split(",") || [])
+  @IsString({ each: true })
+  CORS_ALLOWED_ORIGINS: string[];
 }
 
 export const appConfig = registerAs("app", () => {
@@ -47,5 +51,6 @@ export const appConfig = registerAs("app", () => {
     port: config.PORT,
     name: config.APP_NAME,
     url: config.APP_URL,
+    corsAllowedOrigins: config.CORS_ALLOWED_ORIGINS,
   };
 });

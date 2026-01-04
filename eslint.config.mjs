@@ -8,6 +8,7 @@ import eslintConfigPrettier from "eslint-config-prettier";
 const importSortGroups = [
   ["^@nestjs\\/(.*)$", "^@?\\w"],
   [
+    "^@/(.*)$",
     "^\\.\\.(?!/?$)",
     "^\\.\\./?$",
     "^\\./(?=.*/)(?!/?$)",

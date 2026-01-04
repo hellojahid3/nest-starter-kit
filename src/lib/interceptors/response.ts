@@ -37,13 +37,13 @@ export class ResponseInterceptor<T> implements NestInterceptor<
       this.reflector.get<string>(
         SET_RESPONSE_MESSAGE_METADATA,
         context.getHandler()
-      ) || "";
+      ) || undefined;
 
     return {
       success: true,
       statusCode: status,
       path: request.url,
-      message: message,
+      ...(message ? { message } : {}),
       data: res,
       timestamp: new Date().toISOString(),
     };

@@ -1,8 +1,8 @@
 import {
   HttpStatus,
   UnprocessableEntityException,
-  ValidationError,
-  ValidationPipeOptions,
+  type ValidationError,
+  type ValidationPipeOptions,
 } from "@nestjs/common";
 
 const generateErrors = (

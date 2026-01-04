@@ -2,7 +2,7 @@ export type TResponse<T> = {
   success: boolean;
   statusCode: number;
   path: string;
-  message: string;
+  message?: string;
   data: T;
   timestamp: string;
 };

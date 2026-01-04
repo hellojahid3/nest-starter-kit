@@ -1,4 +1,4 @@
-import { Controller, Get, Logger } from "@nestjs/common";
+import { Controller, Get } from "@nestjs/common";
 import {
   HealthCheck,
   HealthCheckService,
@@ -6,17 +6,17 @@ import {
   PrismaHealthIndicator,
 } from "@nestjs/terminus";
 
+import { CacheHealthIndicator } from "@/cache/cache.health";
 import { PrismaService } from "@/prisma/prisma.service";
 
 @Controller("health")
 export class HealthController {
-  private readonly logger = new Logger(HealthController.name);
-
   constructor(
     private health: HealthCheckService,
     private http: HttpHealthIndicator,
     private db: PrismaHealthIndicator,
-    private prisma: PrismaService
+    private prisma: PrismaService,
+    private cache: CacheHealthIndicator
   ) {}
 
   @Get()
@@ -25,6 +25,7 @@ export class HealthController {
     return this.health.check([
       () => this.http.pingCheck("nestjs-docs", "https://docs.nestjs.com"),
       () => this.db.pingCheck("database", this.prisma),
+      () => this.cache.check("cache"),
     ]);
   }
 }

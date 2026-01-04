@@ -2,12 +2,9 @@ import { CacheOptions, CacheOptionsFactory } from "@nestjs/cache-manager";
 import { Inject, Injectable } from "@nestjs/common";
 import { ConfigType } from "@nestjs/config";
 import { createKeyv } from "@keyv/redis";
-import KeyvSqlite from "@keyv/sqlite";
-import { CacheableMemory } from "cacheable";
 import { Keyv } from "keyv";
 
 import { cacheConfig } from "./cache.config";
-import { CacheDriver } from "./cache.enum";
 
 @Injectable()
 export class CacheConfigService implements CacheOptionsFactory {
@@ -27,22 +24,10 @@ export class CacheConfigService implements CacheOptionsFactory {
     const stores: Keyv[] = [];
 
     stores.push(
-      new Keyv({
-        store: new CacheableMemory({ ttl: 60000, lruSize: 5000 }),
-      })
+      createKeyv(
+        `redis://${this.cacheConfiguration.username ?? "default"}:${this.cacheConfiguration.password ?? ""}@${this.cacheConfiguration.host}:${this.cacheConfiguration.port}`
+      )
     );
-
-    if (this.cacheConfiguration.cacheDriver === CacheDriver.Sqlite) {
-      stores.push(
-        new Keyv({
-          store: new KeyvSqlite(this.cacheConfiguration.cacheStorageUrl),
-        })
-      );
-    }
-
-    if (this.cacheConfiguration.cacheDriver === CacheDriver.Redis) {
-      stores.push(createKeyv(this.cacheConfiguration.cacheStorageUrl));
-    }
 
     return stores;
   }

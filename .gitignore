@@ -57,8 +57,3 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Prisma
 /src/generated
-
-# local database files
-*.db
-*.sqlite
-*.sqlite3

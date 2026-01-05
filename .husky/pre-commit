@@ -1,0 +1,8 @@
+# Run lint-staged to check and fix staged files
+npx lint-staged
+
+# Run TypeScript type checking (checks entire codebase)
+npm run type-check
+
+# Run build to ensure code compiles before commit
+npm run build

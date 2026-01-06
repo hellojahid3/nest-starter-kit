@@ -17,7 +17,6 @@ export class HomeController {
       name: this.config.name,
       version: packageJson.version,
       description: packageJson.description,
-      author: packageJson.author,
       status: "OK",
     };
   }

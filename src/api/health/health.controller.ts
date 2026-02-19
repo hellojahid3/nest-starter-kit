@@ -25,7 +25,6 @@ export class HealthController {
   @SkipResponseInterceptor()
   check() {
     return this.health.check([
-      () => this.http.pingCheck("nestjs-docs", "https://docs.nestjs.com"),
       () => this.db.pingCheck("database", this.prisma),
       () => this.cache.check("cache"),
     ]);

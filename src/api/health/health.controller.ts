@@ -7,6 +7,7 @@ import {
 } from "@nestjs/terminus";
 
 import { CacheHealthIndicator } from "@/cache/cache.health";
+import { SkipResponseInterceptor } from "@/lib/decorators/skip-response-interceptor";
 import { PrismaService } from "@/prisma/prisma.service";
 
 @Controller("health")
@@ -21,6 +22,7 @@ export class HealthController {
 
   @Get()
   @HealthCheck()
+  @SkipResponseInterceptor()
   check() {
     return this.health.check([
       () => this.http.pingCheck("nestjs-docs", "https://docs.nestjs.com"),

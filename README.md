@@ -190,11 +190,6 @@ Handlebars templates are located in `src/mail/templates`.
 Included templates:
 
 - `default`
-- `auth_signup`
-- `auth_verify_email`
-- `auth_login_with_magic_link`
-- `auth_password_reset`
-- `auth_password_reset_success`
 
 ## Prisma Notes
 

@@ -2,7 +2,7 @@
 npx lint-staged
 
 # Run TypeScript type checking (checks entire codebase)
-npm run type-check
+npm run typecheck
 
 # Run build to ensure code compiles before commit
 npm run build

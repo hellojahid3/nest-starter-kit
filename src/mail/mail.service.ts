@@ -6,6 +6,7 @@ import {
   OnModuleInit,
 } from "@nestjs/common";
 import { ConfigType } from "@nestjs/config";
+import { existsSync } from "fs";
 import { promises as fsPromises } from "fs";
 import * as handlebars from "handlebars";
 import * as nodemailer from "nodemailer";
@@ -18,8 +19,9 @@ import { mailConfig } from "./mail.config";
 @Injectable()
 export class MailService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(MailService.name);
-  private readonly templatesDir = path.join(__dirname, "templates");
+  private readonly templatesDir = MailService.resolveTemplatesDir();
   private readonly defaultTemplate = "default";
+
   private readonly templateCache = new Map<
     string,
     handlebars.TemplateDelegate
@@ -95,6 +97,30 @@ export class MailService implements OnModuleInit, OnModuleDestroy {
       }
       throw error;
     }
+  }
+
+  /**
+   * Resolves the templates directory so it works in both dev and production.
+   */
+  private static resolveTemplatesDir(): string {
+    const nextToCompiled = path.join(__dirname, "templates");
+    if (existsSync(nextToCompiled)) {
+      return nextToCompiled;
+    }
+
+    const nestAssetsPath = path.join(
+      __dirname,
+      "..",
+      "..",
+      "mail",
+      "templates"
+    );
+
+    if (existsSync(nestAssetsPath)) {
+      return nestAssetsPath;
+    }
+
+    return nextToCompiled;
   }
 
   /**
